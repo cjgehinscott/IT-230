@@ -1,0 +1,15 @@
+/*CJ Gehin-Scott
+ * IT-230
+ * 01/23/2014*/
+
+import javax.swing.*;
+import java.awt.*;
+
+public class GUIExample2 extends JFrame {
+  
+  public GUIExample2(){
+    setSize(800,800)
+    setVisible(true);
+  }
+  
+}//end GUIExample2 class

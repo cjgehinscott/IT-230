@@ -1,0 +1,32 @@
+/*CJ Gehin-Scott
+ * IT-230
+ * 01/23/2014*/
+
+import javax.swing.*;
+
+public class GUIExample extends JFrame{
+  private JLabel numeratorLabel; //declaring
+  private JTextField numeratorTF; //declaring
+  private JPanel panel1; //declaring
+  
+  //GUI constructor
+  public GUIExample(){
+    setTitle("GUI Example - Divide Numbers");
+    
+    //initialization
+    numeratorLabel = new JLabel("Numerator");
+    numeratorTF = new JTextField(10);
+    panel1 = new JPanel;
+    panel1.add(numeratorLabel);
+    panel1.add(numeratorTF);
+    add(panel1);
+    
+    setSize(400,400);
+    setVisible(true);
+  }//end GUI constructor
+  
+  public static void main(String [] args){
+    GUIExample e1 = new GUIExample();
+  
+  }//end main method
+}//end GUIExample class
