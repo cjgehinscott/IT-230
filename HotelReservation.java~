@@ -1,0 +1,19 @@
+/*CJ Gehin-Scott
+ * IT-230*/
+
+import javax.swing.*;
+import java.awt.*;
+
+public class HotelReservation extends JFrame{
+  private JLabel firstNameLabel, lastNameLabel;
+  private JTextField firstNameTF, lastNameTF;
+  private JPanel northPanel
+    
+  //GUI constructor
+  public HotelReservation(){
+    
+  }
+  public static void main(String[] args){
+    
+  }//end main method
+}//end HotelReservation class
