@@ -1,0 +1,10 @@
+public class WeightException extends Exception{
+ 
+  public WeightException(){
+   super("You have entered an invalid weight"); 
+  }
+  
+  public WeightException(String message){
+   super(message); 
+  }
+}

@@ -1,0 +1,21 @@
+Weight: 50
+Delivery: Local Delivery
+Insurance: Yes
+Weight: 45
+Delivery: Local Delivery
+Insurance: Yes
+Weight: 35
+Delivery: Local Delivery
+Insurance: No
+Weight: 35.7
+Delivery: Local Delivery
+Insurance: Yes
+Cost:$ 26.0
+Weight: 4.5
+Delivery: Long Distance Delivery
+Insurance: No
+Cost:$ 35.0
+Weight: 4.5
+Delivery: Long Distance Delivery
+Insurance: Yes
+Cost:$ 39.0

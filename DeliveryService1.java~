@@ -1,0 +1,32 @@
+/*CJ Gehin-Scott
+ * MidTerm Practice */
+
+import java.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.Scanner;
+
+public class DeliveryService1 extends JFrame implements ActionListener{
+ 
+  private JLabel weightLabel, deliveryLabel;
+  private JTextField weightTF;
+  private JButton submit, cancel;
+  private JRadioButton localDeliveryRB, longDistanceDeliveryRB;
+  private JCheckBox insuranceCheckBox;
+  private JPanel northPanel, southPanel, centerPanel;
+ 
+  public DeliveryService1()
+  {
+    setTitel("Delivery Service");
+    setLayout(new BorderLayout());
+  }
+  
+  //North Panel
+  weightLabel = new JLabel("Enter weight in pounds: " );
+  weightTF = new JTextField(20);
+  northPanel = new JPanel();
+  northPanel.add(weightLabel);
+  northPanel.add(weightTF);
+  add(northPanel, BorderLayout.NORTH);
+}

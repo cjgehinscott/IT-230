@@ -1,0 +1,28 @@
+import java.util.Scanner;
+
+public class ExceptionDivisionExample {
+ 
+ public static void main(String [] args) {
+  
+  Scanner scn = new Scanner(System.in);
+  System.out.println("Please enter a numerator:");
+  int numerator = scn.nextInt();
+  System.out.println("Please enter a denominator:");
+  int denominator = scn.nextInt();
+  try{
+    int quotient = numerator / denominator;
+    System.out.println(numerator + " / " + denominator + " = " + quotient); 
+  }
+  catch(Exception e){
+    System.out.println(e.getMessage());
+    System.out.println(e.toString());
+    e.printStackTrace();
+    //System.out.println("Error!! You can't divide by Zero");
+  }
+  finally{
+    System.out.println("Move Along!!");
+  }
+  System.out.println("Program has reached the end of line.");
+  
+ } 
+}

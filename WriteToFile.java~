@@ -1,0 +1,8 @@
+
+
+public class WriteToFile{
+  public static void main(String[] args){
+   String filename = "testfile.txt";
+   File file = new File(filename);
+  }
+}
