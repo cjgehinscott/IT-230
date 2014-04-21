@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Scanner;
+import java.sql.*;
 
 public class HotelReservation extends JFrame implements ActionListener{
   private JLabel firstNameLabel, lastNameLabel, checkInLabel, checkOutLabel, specialRatesLabel, roomTypeLabel, billingAddressLabel, streetLabel, cityLabel, stateLabel, zipLabel, 
@@ -342,5 +343,15 @@ public class HotelReservation extends JFrame implements ActionListener{
   }
   public static void main(String[] args){
     HotelReservation h1 = new HotelReservation();
+    String url = "jdbc:mysql://localhost/hotelReservations?user=root&password=";
+   try{
+    Class.forName("com.mysql.jdbc.Driver");
+    Connection conn = DriverManager.getConnection(url);
+    System.out.println("connected");
+   }catch(ClassNotFoundException cnfe) {
+    cnfe.printStackTrace(); 
+   }catch(SQLException sqle){
+     sqle.printStackTrace();
+   }
   }//end main method
 }//end HotelReservation class

@@ -1,0 +1,23 @@
+import java.io.IOException;
+import java.net.*;
+
+public class DatagramClient {
+	
+	private DatagramSocket socket;
+	public DatagramClient(){
+		try{
+		socket = new DatagramSocket();
+		while(true){
+		String message = "Hello Server";
+		byte data[] = message.getBytes();
+		DatagramPacket packet = new DatagramPacket(data, data.length,InetAddress.getLocalHost(),1097);
+		socket.send(packet);
+		}
+		}catch(IOException se){
+			se.printStackTrace();
+		}
+	}
+	public static void main(String[] args){
+		DatagramClient dc = new DatagramClient();
+	}
+}
