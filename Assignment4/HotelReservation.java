@@ -2,11 +2,13 @@
  * IT-230*/
 
 import javax.swing.*;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.Scanner;
 import java.sql.*;
+import java.net.*;
 
 public class HotelReservation extends JFrame implements ActionListener{
   private JLabel firstNameLabel, lastNameLabel, checkInLabel, checkOutLabel, specialRatesLabel, roomTypeLabel, billingAddressLabel, streetLabel, cityLabel, stateLabel, zipLabel, 
@@ -15,9 +17,15 @@ public class HotelReservation extends JFrame implements ActionListener{
   private JPanel northPanel, westPanel, westPanel2, westPanel3, eastPanel, billingPanel, billingPanel2, ccPanel, ccPanelCenter, ccPanelSouth, southPanel;
   private JComboBox numberOfRoomsCB, numberOfGuestsCB, stateCB, handicapCB;
   private JRadioButton noneButton, aaaButton, seniorButton, govtMiltButton, studioButton, standardButton, familyButton, suiteButton, visaButton, masterButton, amexButton, discoverButton;
-  private JButton submit, cancel,search;
+  private JButton submit, cancel,search,delete;
   private ButtonGroup ccGroup, specialRatesGroup, roomTypeGroup;
   private JTextArea specialRequestsTA;
+  private Socket socket;
+  private ServerSocket serverSocket;
+  private ObjectOutputStream output;
+  private ObjectInputStream input;
+  private String sendMessage; //message to be sent to the server
+  private String receiveMessage; //message to be received by the server
   
     
   //GUI constructor
@@ -129,7 +137,7 @@ public class HotelReservation extends JFrame implements ActionListener{
     visaButton = new JRadioButton();
     ImageIcon visaIcon = new ImageIcon("visa.gif");
     visaLabel = new JLabel(visaIcon);
-    //Mastercard Buton
+    //Mastercard Button
     masterButton = new JRadioButton();
     ImageIcon masterIcon = new ImageIcon("master.gif");
     masterLabel = new JLabel(masterIcon);
@@ -146,6 +154,8 @@ public class HotelReservation extends JFrame implements ActionListener{
     expirationLabel = new JLabel("Expiration Date (mm/yyyy)");
     search = new JButton("Search");
     search.addActionListener(this);
+    delete = new JButton("Delete Reservation");
+    delete.addActionListener(this);
     ccNumberTF = new JTextField(5);
     expirationTF = new JTextField(5);
     handicapLabel = new JLabel("Handicap Accessible");
@@ -158,7 +168,7 @@ public class HotelReservation extends JFrame implements ActionListener{
    billingPanel.add(billingAddressLabel, BorderLayout.NORTH);
    billingPanel2 = new JPanel();
    billingPanel2.setLayout(new GridLayout(7,2));
-   billingPanel2.add(blankLabel);
+   //billingPanel2.add(blankLabel);
    billingPanel2.add(streetLabel);
    billingPanel2.add(streetTF);
    billingPanel2.add(cityLabel);
@@ -197,7 +207,7 @@ public class HotelReservation extends JFrame implements ActionListener{
    ccPanelSouth.add(ccNumberTF);
    ccPanelSouth.add(expirationTF);
    ccPanelSouth.add(search);
-   ccPanelSouth.add(blankLabel);
+   ccPanelSouth.add(delete);
    ccPanelSouth.add(handicapLabel);
    ccPanelSouth.add(handicapCB);
    ccPanel.add(ccPanelSouth, BorderLayout.SOUTH);
@@ -287,23 +297,47 @@ public class HotelReservation extends JFrame implements ActionListener{
         }else if(ccNumber.charAt(0) != '6' && discoverButton.isSelected() == true){
           throw new InvalidCreditCardException("Invalid Discover card number!! Discover cards must begin with 6");
         }
-      String fileName = ccNumber;
-      File file = new File(fileName);
+        //Sends CC info to Server for validation
       try{
-        FileWriter writer = new FileWriter(file,true);
-        String data = ("First Name: " + fn + "\nLast Name: " + ln + "\nCheck-In-Date:  " + checkIn + "\nCheck-Out-Date:  " + checkOut + "\nNumber of Rooms: " +
-                                    numberRooms + "\nNumber of Guests: " + numberGuests  + "\nDiscount Applied: " + discount +"\nRoom Type Selected: " + roomType + "\nSpecial Requests: " 
-                                   + specialRequests + "\nHandicap Accessible: " + handicap + "\nBilling Address: " + "\nStreet: " + street + "\nCity: " + city + "\nState: " + state + "\nZip: " + zip + "\nPhone Number: " + phone 
-                                   +"\nCredit Card Type: " +creditType + "\nCredit Card Number: " + ccNumber + "\nExpiration Date: " + expirationDate + "\n");
-        writer.write(data);
-        writer.close();
+       socket = new Socket(InetAddress.getByName("localhost"),1098);
+       output = new ObjectOutputStream(socket.getOutputStream());
+       sendMessage = ccNumber + expirationDate;
+       output.writeObject(sendMessage);//converts message string to stream format
+       output.flush();
+       input = new ObjectInputStream(socket.getInputStream());
+       receiveMessage = (String) input.readObject();
+      }catch(UnknownHostException uhe){
+       uhe.printStackTrace();
       }catch(IOException ioe){
-        System.out.println(ioe.toString());
+       ioe.printStackTrace();
+      }catch(ClassNotFoundException cnfe){
+       cnfe.printStackTrace();
       }
-      JOptionPane.showMessageDialog(null,"First Name: " + fn + "\nLast Name: " + ln + "\nCheck-In-Date:  " + checkIn + "\nCheck-Out-Date:  " + checkOut + "\nNumber of Rooms: " +
-                                    numberRooms + "\nNumber of Guests: " + numberGuests  + "\nDiscount Applied: " + discount +"\nRoom Type Selected: " + roomType + "\nSpecial Requests: " 
-                                   + specialRequests + "\nHandicap Accessible: " + handicap + "\nBilling Address: " + "\nStreet: " + street + "\nCity: " + city + "\nState: " + state + "\nZip: " + zip + "\nPhone Number: " + phone 
-                                   +"\nCredit Card Type: " +creditType + "\nCredit Card Number: " + ccNumber + "\nExpiration Date: " + expirationDate);
+      String url = "jdbc:mysql://localhost/hotelReservations?user=root&password=";
+      String insertQuery = "INSERT INTO reservations values('" + fn +"','" + ln +"','"+ checkIn +
+        "','"+ checkOut + "','" + numberRooms + "','" + numberGuests +"','" + discount + "','"
+        + specialRequests +"','"+ street + "','" + city + "','" + state + "','" + zip + "','" + phone +"','"
+        + creditType +"','" + ccNumber + "','" + expirationDate +"','" + handicap +"','" +
+        roomType +"');";
+      if(receiveMessage.equalsIgnoreCase("yes")){
+       try{
+       Class.forName("com.mysql.jdbc.Driver");
+          Connection conn = DriverManager.getConnection(url);
+          Statement stmt = conn.createStatement();
+          stmt.execute(insertQuery);
+       }catch(ClassNotFoundException cnfe){
+        cnfe.printStackTrace();
+       }catch(SQLException sqle){
+        sqle.printStackTrace();
+       }
+       JOptionPane.showMessageDialog(null,"Your reservation was successfully saved!!"
+       + "\nFirst Name: " + fn + "\nLast Name: " + ln + "\nCheck-In-Date:  " + checkIn + "\nCheck-Out-Date:  " + checkOut + "\nNumber of Rooms: " +
+       numberRooms + "\nNumber of Guests: " + numberGuests  + "\nDiscount Applied: " + discount +"\nRoom Type Selected: " + roomType + "\nSpecial Requests: " 
+       + specialRequests + "\nHandicap Accessible: " + handicap + "\nBilling Address: " + "\nStreet: " + street + "\nCity: " + city + "\nState: " + state + "\nZip: " + zip + "\nPhone Number: " + phone 
+       +"\nCredit Card Type: " +creditType + "\nCredit Card Number: " + ccNumber + "\nExpiration Date: " + expirationDate);
+      }else{
+       JOptionPane.showMessageDialog(null, "The credit card you entered is not valid.\n Please check the credit card number and expiration date and try again!");
+      }
       }catch(InvalidCreditCardException icce){
         JOptionPane.showMessageDialog(null, icce.toString());
       }
@@ -327,31 +361,50 @@ public class HotelReservation extends JFrame implements ActionListener{
     roomTypeGroup.clearSelection();
     ccGroup.clearSelection();
     }else if(event.getSource() == search){
-      String fileIn = ccNumberTF.getText();
-      File readFile = new File(fileIn);
+      String url = "jdbc:mysql://localhost/hotelReservations?user=root&password=";
+      String ccNumber = ccNumberTF.getText();
+      String ccSearchQuery = ("SELECT * FROM reservations WHERE creditCardNum = " + ccNumber + ";");
       try{
-        String line = "";
-        Scanner reader = new Scanner(readFile);
-        while(reader.hasNextLine()){
-         line = line + reader.nextLine() + "\n";
-        }
-        JOptionPane.showMessageDialog(null, line);
-      }catch(FileNotFoundException fnfe){
-        JOptionPane.showMessageDialog(null, fnfe.toString());
+      Class.forName("com.mysql.jdbc.Driver"); 
+      Connection conn = DriverManager.getConnection(url);
+      Statement stmt = conn.createStatement();
+      ResultSet result = stmt.executeQuery(ccSearchQuery);
+      
+         if(result.next()){
+        JOptionPane.showMessageDialog(null,"Here is your reservation"
+              + "\nFirst Name: " + result.getString(1) + "\nLast Name: " + result.getString(2) + "\nCheck-In-Date:  " + result.getString(3) + "\nCheck-Out-Date:  " + result.getString(4) + "\nNumber of Rooms: " +
+                  result.getString(5) + "\nNumber of Guests: " + result.getString(6)  + "\nDiscount Applied: " + result.getString(7) +"\nRoom Type Selected: " + result.getString(18) + "\nSpecial Requests: " 
+                  + result.getString(8) + "\nHandicap Accessible: " + result.getString(17) + "\nBilling Address: " + "\nStreet: " + result.getString(9) + "\nCity: " + result.getString(10) + "\nState: " + result.getString(11) + "\nZip: " + result.getString(12) + "\nPhone Number: " + result.getString(13) 
+                  +"\nCredit Card Type: " +result.getString(14) + "\nCredit Card Number: " + result.getString(15) + "\nExpiration Date: " + result.getString(16));
+      }else{
+       JOptionPane.showMessageDialog(null, "There isn't a reservation under that credit-card number("
+         + ccNumber +"). Please try again.");
       }
+      }catch(SQLException sqle){
+       sqle.printStackTrace();
+      }catch(ClassNotFoundException cnfe){
+       cnfe.printStackTrace();
+      }
+    }else if(event.getSource() == delete){
+     String url = "jdbc:mysql://localhost/hotelReservations?user=root&password=";
+        String ccNumber = ccNumberTF.getText();
+        String ccDeleteQuery = ("DELETE FROM reservations WHERE creditCardNum = " + ccNumber + ";");
+      try{
+         Class.forName("com.mysql.jdbc.Driver"); 
+         Connection conn = DriverManager.getConnection(url);
+         Statement stmt = conn.createStatement();
+         stmt.execute(ccDeleteQuery);
+         
+       }catch(SQLException sqle){
+        sqle.printStackTrace();
+       }catch(ClassNotFoundException cnfe){
+        cnfe.printStackTrace();
+      }
+      JOptionPane.showMessageDialog(null,"Your reservation with credit-card number ("+ccNumber+") has been deleted");
     }
   }
   public static void main(String[] args){
     HotelReservation h1 = new HotelReservation();
-    String url = "jdbc:mysql://localhost/hotelReservations?user=root&password=";
-   try{
-    Class.forName("com.mysql.jdbc.Driver");
-    Connection conn = DriverManager.getConnection(url);
-    System.out.println("connected");
-   }catch(ClassNotFoundException cnfe) {
-    cnfe.printStackTrace(); 
-   }catch(SQLException sqle){
-     sqle.printStackTrace();
-   }
+    
   }//end main method
 }//end HotelReservation class

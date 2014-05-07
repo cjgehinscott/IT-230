@@ -1,0 +1,31 @@
+import java.net.*;
+import java.io.*;
+public class CreditCardServer {
+ private ServerSocket serverSocket;
+ private Socket socket;
+ private ObjectInputStream input;
+ 
+ public CreditCardServer(){
+  System.out.println("Server is running...");
+  while(true){
+   try{
+    //server trying port 1098
+    //maximum clients 500
+    serverSocket = new ServerSocket(1098,500);
+    socket = serverSocket.accept(); //accept incoming connection
+    //get input from client in stream format
+    input = new ObjectInputStream(socket.getInputStream());
+    //convert to string
+    String message = (String) input.readObject();
+    System.out.println(message);
+   }catch(IOException ioe){
+    ioe.printStackTrace();
+   }catch(ClassNotFoundException cnfe){
+    cnfe.printStackTrace();
+   }
+  }
+ }
+ public static void main(String[] args){
+  new CreditCardServer();
+ }
+}

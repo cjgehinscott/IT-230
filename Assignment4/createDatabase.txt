@@ -1,0 +1,22 @@
+CREATE DATABASE hotelReservations;
+
+USE hotelReservations;
+
+CREATE TABLE reservations(firstName VARCHAR(30),
+lastName VARCHAR(30), 
+checkIn VARCHAR(12), 
+checkOut VARCHAR(12), 
+numOfRoom VARCHAR(10), 
+gPerRoom INT(11), 
+specialRate VARCHAR(30), 
+specialRequest VARCHAR(100), 
+street VARCHAR(50), 
+city VARCHAR(30), 
+state VARCHAR(25), 
+zip VARCHAR(10), 
+phone VARCHAR(10), 
+creditCard VARCHAR(10), 
+creditCardNum VARCHAR(30), 
+expDate VARCHAR(8), 
+handicap VARCHAR(10)
+roomType VARCHAR(30));
